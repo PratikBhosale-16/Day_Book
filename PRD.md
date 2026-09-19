@@ -19,6 +19,7 @@ Each list is a **page** of paper. You write on it, cross things off, and when ev
 ## Structure
 
 - **Buckets** — default: Today, This week, Someday. Users can rename, reorder, and add custom buckets.
+  - **Bucket names must be unique** (deliberate constraint, added v0.2.1). Two buckets with identical names would produce indistinguishable pills in the UI. The database enforces this via a UNIQUE index on `name`. The Settings UI for adding/renaming a bucket must validate the name before writing and show an inline error message on collision (e.g. "A bucket named 'Today' already exists") — a silent `INSERT OR IGNORE` failure is not acceptable user-facing behaviour.
 - **Pages** — each bucket holds one or more pages (e.g. "Groceries" and "Work calls" both under Today). The user decides how much goes on a page.
 - **Tasks** — a line of text on a page, optionally with a reminder.
 

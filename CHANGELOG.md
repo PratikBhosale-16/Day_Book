@@ -2,6 +2,16 @@
 
 All notable changes to Daybook are recorded here. Format follows Keep a Changelog; versions follow semver.
 
+## [v0.2.2] - 2026-09-19
+### Added
+- Instrumented test: `DatabaseSeederIntegrationTest` verifies the real Room-generated
+  `BucketDao` and the `Bucket.name` unique index to prove idempotency against the real
+  SQLite constraint. (Requires device to run).
+- Added `androidx.test.ext:junit` and `androidx.test:core-ktx` dependencies.
+- Updated `docs/PRD.md` to explicitly state bucket names must be unique and flag
+  that the Settings UI must validate this and show an error (rather than silently
+  failing via `INSERT OR IGNORE`).
+
 ## [v0.2.1] - 2026-09-19
 ### Fixed
 - Added `unique = true` to the `name` index on `Bucket` — without this, INSERT OR IGNORE
