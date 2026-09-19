@@ -2,6 +2,11 @@
 
 All notable changes to Daybook are recorded here. Format follows Keep a Changelog; versions follow semver.
 
+## [v0.1.1] - 2026-09-19
+### Fixed
+- Fixed hardcoded light theme by replacing it with a Material3 DayNight theme for system dark mode support.
+- Configured Gradle Wrapper strictly to version 9.6.0 with distribution checksum.
+
 ## [v0.1.0] - 2026-09-19
 ### Added
 - Initial project skeleton for Android app and Jetpack Glance widget
