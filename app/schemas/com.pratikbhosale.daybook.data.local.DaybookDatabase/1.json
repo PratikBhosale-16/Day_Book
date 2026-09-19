@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "8948b281fe39d1e1e79cdb7373832e0d",
+    "identityHash": "609e4d32c8794abb023d0fd2f76b32e9",
     "entities": [
       {
         "tableName": "buckets",
@@ -44,7 +44,18 @@
           "columnNames": [
             "id"
           ]
-        }
+        },
+        "indices": [
+          {
+            "name": "index_buckets_name",
+            "unique": true,
+            "columnNames": [
+              "name"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_buckets_name` ON `${TABLE_NAME}` (`name`)"
+          }
+        ]
       },
       {
         "tableName": "pages",
@@ -233,7 +244,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '8948b281fe39d1e1e79cdb7373832e0d')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '609e4d32c8794abb023d0fd2f76b32e9')"
     ]
   }
 }

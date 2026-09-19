@@ -2,6 +2,15 @@
 
 All notable changes to Daybook are recorded here. Format follows Keep a Changelog; versions follow semver.
 
+## [v0.2.1] - 2026-09-19
+### Fixed
+- Added `unique = true` to the `name` index on `Bucket` — without this, INSERT OR IGNORE
+  had no constraint to resolve against and a second seed run would have inserted 6 rows.
+- Replaced the shape-only DatabaseSeeder tests with three real idempotency tests using a
+  FakeBucketDao that simulates INSERT OR IGNORE by name: `rowCountStaysAtThree`,
+  `noDuplicateNames`, and `originalIdsPreserved` after calling seedDefaultBuckets twice.
+  All 15 unit tests pass.
+
 ## [v0.2.0] - 2026-09-19
 ### Added
 - Room entities: Bucket, Page, Task with all TRD fields and required FK indices

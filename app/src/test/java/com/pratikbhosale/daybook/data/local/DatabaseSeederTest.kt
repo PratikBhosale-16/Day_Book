@@ -1,6 +1,10 @@
 package com.pratikbhosale.daybook.data.local
 
+import com.pratikbhosale.daybook.data.model.Bucket
 import com.pratikbhosale.daybook.data.model.ColorKey
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -8,10 +12,57 @@ import org.junit.Test
 /**
  * Tests for default bucket seeding logic in [DatabaseSeeder].
  *
- * These tests cover the shape and idempotency of the seed data without
- * requiring a database or a device.
+ * The [FakeBucketDao] simulates the Room UNIQUE index on `name` + INSERT OR IGNORE:
+ * inserts that conflict on name are silently skipped — exactly what the real constraint
+ * enforces in production.
  */
 class DatabaseSeederTest {
+
+    // ── Helpers ───────────────────────────────────────────────────────────────
+
+    /**
+     * In-memory BucketDao that enforces name uniqueness, matching the UNIQUE index
+     * on Bucket.name that backs INSERT OR IGNORE in production.
+     */
+    private class FakeBucketDao : BucketDao {
+        val rows = mutableListOf<Bucket>()
+        private var nextId = 1L
+
+        override fun observeAll(): Flow<List<Bucket>> = flowOf(rows.toList())
+
+        override suspend fun getById(id: Long): Bucket? = rows.find { it.id == id }
+
+        override suspend fun insertAll(buckets: List<Bucket>) {
+            for (bucket in buckets) {
+                // Simulate INSERT OR IGNORE: skip if name already exists (unique index)
+                if (rows.none { it.name == bucket.name }) {
+                    rows.add(bucket.copy(id = nextId++))
+                }
+            }
+        }
+
+        override suspend fun insert(bucket: Bucket): Long {
+            if (rows.none { it.name == bucket.name }) {
+                val id = nextId++
+                rows.add(bucket.copy(id = id))
+                return id
+            }
+            return -1L // IGNORE
+        }
+
+        override suspend fun update(bucket: Bucket) {
+            val idx = rows.indexOfFirst { it.id == bucket.id }
+            if (idx >= 0) rows[idx] = bucket
+        }
+
+        override suspend fun deleteNonDefault(id: Long) {
+            rows.removeAll { it.id == id && !it.isDefault }
+        }
+
+        override suspend fun count(): Int = rows.size
+    }
+
+    // ── Shape tests (single seed) ─────────────────────────────────────────────
 
     @Test
     fun defaultBuckets_returnsExactlyThreeBuckets() {
@@ -22,47 +73,75 @@ class DatabaseSeederTest {
     @Test
     fun defaultBuckets_allMarkedAsDefault() {
         val buckets = DatabaseSeeder.defaultBuckets()
-        assertTrue(
-            "All seeded buckets must have isDefault = true",
-            buckets.all { it.isDefault }
+        assertTrue("All seeded buckets must have isDefault = true", buckets.all { it.isDefault })
+    }
+
+    @Test
+    fun defaultBuckets_hasToday_withCorrectColorAndOrder() {
+        val today = DatabaseSeeder.defaultBuckets().find { it.name == "Today" }
+        assertEquals(ColorKey.TODAY, today?.colorKey)
+        assertEquals(0, today?.sortOrder)
+    }
+
+    @Test
+    fun defaultBuckets_hasThisWeek_withCorrectColorAndOrder() {
+        val week = DatabaseSeeder.defaultBuckets().find { it.name == "This week" }
+        assertEquals(ColorKey.WEEK, week?.colorKey)
+        assertEquals(1, week?.sortOrder)
+    }
+
+    @Test
+    fun defaultBuckets_hasSomeday_withCorrectColorAndOrder() {
+        val someday = DatabaseSeeder.defaultBuckets().find { it.name == "Someday" }
+        assertEquals(ColorKey.SOMEDAY, someday?.colorKey)
+        assertEquals(2, someday?.sortOrder)
+    }
+
+    // ── Idempotency tests (double seed) ───────────────────────────────────────
+
+    @Test
+    fun seedDefaultBuckets_calledTwice_rowCountStaysAtThree() = runTest {
+        val dao = FakeBucketDao()
+
+        DatabaseSeeder.seedDefaultBuckets(dao)
+        DatabaseSeeder.seedDefaultBuckets(dao) // second call must be a no-op
+
+        assertEquals(
+            "Row count must be exactly 3 after seeding twice — INSERT OR IGNORE on name",
+            3,
+            dao.rows.size,
         )
     }
 
     @Test
-    fun defaultBuckets_hasToday() {
-        val buckets = DatabaseSeeder.defaultBuckets()
-        val today = buckets.find { it.name == "Today" }
-        assertEquals("Today bucket must use TODAY color key", ColorKey.TODAY, today?.colorKey)
-        assertEquals("Today bucket must have sortOrder 0", 0, today?.sortOrder)
+    fun seedDefaultBuckets_calledTwice_noDuplicateNames() = runTest {
+        val dao = FakeBucketDao()
+
+        DatabaseSeeder.seedDefaultBuckets(dao)
+        DatabaseSeeder.seedDefaultBuckets(dao)
+
+        val names = dao.rows.map { it.name }
+        assertEquals(
+            "No duplicate bucket names after double seed",
+            names.distinct().size,
+            names.size,
+        )
     }
 
     @Test
-    fun defaultBuckets_hasThisWeek() {
-        val buckets = DatabaseSeeder.defaultBuckets()
-        val week = buckets.find { it.name == "This week" }
-        assertEquals("This week bucket must use WEEK color key", ColorKey.WEEK, week?.colorKey)
-        assertEquals("This week bucket must have sortOrder 1", 1, week?.sortOrder)
-    }
+    fun seedDefaultBuckets_calledTwice_originalIdsPreserved() = runTest {
+        val dao = FakeBucketDao()
 
-    @Test
-    fun defaultBuckets_hasSomeday() {
-        val buckets = DatabaseSeeder.defaultBuckets()
-        val someday = buckets.find { it.name == "Someday" }
-        assertEquals("Someday bucket must use SOMEDAY color key", ColorKey.SOMEDAY, someday?.colorKey)
-        assertEquals("Someday bucket must have sortOrder 2", 2, someday?.sortOrder)
-    }
+        DatabaseSeeder.seedDefaultBuckets(dao)
+        val idsAfterFirst = dao.rows.map { it.id }.toSet()
 
-    @Test
-    fun defaultBuckets_sortOrdersAreUnique() {
-        val buckets = DatabaseSeeder.defaultBuckets()
-        val sortOrders = buckets.map { it.sortOrder }
-        assertEquals("Sort orders must all be distinct", sortOrders.distinct().size, sortOrders.size)
-    }
+        DatabaseSeeder.seedDefaultBuckets(dao)
+        val idsAfterSecond = dao.rows.map { it.id }.toSet()
 
-    @Test
-    fun defaultBuckets_colorKeysAreUnique() {
-        val buckets = DatabaseSeeder.defaultBuckets()
-        val colorKeys = buckets.map { it.colorKey }
-        assertEquals("Color keys must all be distinct", colorKeys.distinct().size, colorKeys.size)
+        assertEquals(
+            "Second seed must not create new rows — IDs must be identical",
+            idsAfterFirst,
+            idsAfterSecond,
+        )
     }
 }
