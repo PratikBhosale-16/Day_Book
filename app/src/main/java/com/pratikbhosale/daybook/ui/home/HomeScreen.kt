@@ -244,7 +244,7 @@ private fun BucketPill(
     ) {
         Text(
             text = bucket.name,
-            color = if (isActive) colors.ink else colors.fill,
+            color = colors.ink,
             fontSize = 14.sp,
             maxLines = 1,
         )
@@ -506,21 +506,23 @@ private fun BottomChrome(
         }
 
         // Page dots
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            repeat(pageCount.coerceAtLeast(1)) { index ->
-                val isActive = index == currentPage
-                Box(
-                    modifier = Modifier
-                        .size(if (isActive) 7.dp else 5.dp)
-                        .clip(CircleShape)
-                        .background(if (isActive) Ink else InkMuted.copy(alpha = 0.4f))
-                        .semantics {
-                            contentDescription = "Page ${index + 1} of $pageCount"
-                        },
-                )
+        if (pageCount > 0) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                repeat(pageCount) { index ->
+                    val isActive = index == currentPage
+                    Box(
+                        modifier = Modifier
+                            .size(if (isActive) 7.dp else 5.dp)
+                            .clip(CircleShape)
+                            .background(if (isActive) Ink else InkMuted.copy(alpha = 0.4f))
+                            .semantics {
+                                contentDescription = "Page ${index + 1} of $pageCount"
+                            },
+                    )
+                }
             }
         }
 
