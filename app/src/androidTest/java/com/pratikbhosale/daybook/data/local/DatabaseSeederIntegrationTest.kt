@@ -3,6 +3,7 @@ package com.pratikbhosale.daybook.data.local
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -76,9 +77,7 @@ class DatabaseSeederIntegrationTest {
         DatabaseSeeder.seedDefaultBuckets(bucketDao)
 
         // Collect all names from the real DB; each must appear exactly once.
-        val allBuckets = mutableListOf<com.pratikbhosale.daybook.data.model.Bucket>()
-        bucketDao.observeAll().collect { allBuckets.addAll(it) }
-        // observeAll is a Flow; collect() suspends until the first emission.
+        val allBuckets = bucketDao.observeAll().first()
 
         val names = allBuckets.map { it.name }
         assertEquals(

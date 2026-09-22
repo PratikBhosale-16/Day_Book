@@ -2,6 +2,26 @@
 
 All notable changes to Daybook are recorded here. Format follows Keep a Changelog; versions follow semver.
 
+## [v0.3.0] - 2026-09-22
+### Added
+- Home screen: bucket pills (outlined/filled per active state), horizontal page pager,
+  page title + discrete-segment progress ring, task list, and inline write-a-task dashed
+  row — no FAB, no modal, per DESIGN.md.
+- Task toggle: 200ms animated strikethrough with slight hand-drawn imperfection, text
+  drops to `inkMuted`, light haptic tick on completion.
+- Progress ring becomes a seal checkmark when all tasks are done (`isComplete`).
+- Bucket pills use correct accent fill/ink from DESIGN.md per `ColorKey`; no hardcoded
+  hex values in any composable.
+- `HomeViewModel` via Hilt + UDF: repository Flow → ViewModel → sealed `HomeUiState` →
+  Compose. Task toggle and add are off-main-thread coroutines.
+- `MainActivity` with `@AndroidEntryPoint`, edge-to-edge, `safeDrawingPadding`.
+- `@Preview` variants for light, dark, and large-font (`@PreviewFontScale`).
+- Added `material-icons-extended` (from Compose BOM), `hilt-navigation-compose:1.4.0`,
+  `lifecycle-viewmodel-compose:2.11.0`, and `lifecycle-runtime-compose:2.11.0`.
+- Fixed gradle-wrapper.jar: replaced with the official Gradle 9.6.0 jar sourced from
+  `github.com/gradle/gradle` at tag v9.6.0. SHA-256 verified against
+  `services.gradle.org` reference: `497c8c2a…a9c7`.
+
 ## [v0.2.2] - 2026-09-19
 ### Added
 - Instrumented test: `DatabaseSeederIntegrationTest` verifies the real Room-generated

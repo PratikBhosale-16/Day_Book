@@ -10,6 +10,16 @@ These rules exist because a confidently wrong answer costs more time than an adm
 4. **Never reference a file, class, or function you have not opened.** Read it first. Do not assume a file's contents from its name.
 5. **Do not invent project structure.** If you need to know where something lives, list the directory. Do not assume.
 
+## A build passing is not the same as a test running
+
+A test task reporting "BUILD SUCCESSFUL" proves nothing on its own — a misconfigured test runner, an empty test source set, or a test class Gradle fails to discover all produce the exact same green result with zero tests actually executed. This has already happened once on this project (`connectedDebugAndroidTest` reported success with the instrumentation runner not properly wired up).
+
+**Always report the actual test count alongside any test result** — "tests=3, failures=0," not just "BUILD SUCCESSFUL." If you cannot produce a real count from the XML/HTML report, say so explicitly rather than reporting the build status as if it were the test result.
+
+## The hedge is the tell
+
+If you catch yourself writing "X (or Y if...)" for a version number, a file path, or an API — stop. That hedge means you didn't actually verify it, you're presenting two guesses and letting the human pick. Look it up and give one answer, or say plainly you couldn't confirm it.
+
 ## When you are unsure
 
 State it plainly and stop. Acceptable and expected:
