@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="40dp"
+    android:height="40dp"
+    android:viewportWidth="40"
+    android:viewportHeight="40">
+    <!-- Track circle -->
+    <path
+        android:pathData="M 20,6 A 14,14 0 1,1 19.999,6"
+        android:strokeColor="@color/ring_track"
+        android:strokeWidth="4"
+        android:fillColor="@android:color/transparent" />
+    <!-- Filled arc -->
+    <path
+        android:pathData="M 20 6 A 14 14 0 0 1 31.326 11.771"
+        android:strokeColor="@color/ring_segment_fill"
+        android:strokeWidth="4"
+        android:strokeLineCap="round"
+        android:fillColor="@android:color/transparent" />
+</vector>

@@ -1,0 +1,14 @@
+<resources>
+    <!-- Ring segment fill — Today accent -->
+    <color name="ring_segment_fill">#FCE8B8</color>
+    <!-- Ring segment stroke / track (unfilled arc) -->
+    <color name="ring_track">#E8DCC8</color>
+    <!-- Completion checkmark -->
+    <color name="ring_complete">#4C9A6A</color>
+    <!-- Ring background circle -->
+    <color name="ring_background">#FBF5E9</color>
+    <!-- Widget UI chrome -->
+    <color name="widget_background">#FBF5E9</color>
+    <color name="widget_ink">#3A3229</color>
+    <color name="widget_ink_muted">#9A9187</color>
+</resources>

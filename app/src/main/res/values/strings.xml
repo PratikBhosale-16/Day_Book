@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Daybook</string>
+    <string name="widget_description">Shows your active page with task progress</string>
+</resources>

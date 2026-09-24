@@ -2,6 +2,17 @@
 
 All notable changes to Daybook are recorded here. Format follows Keep a Changelog; versions follow semver.
 
+## [v0.4.0] - 2026-09-24
+### Added
+- Home screen widget (Jetpack Glance): Shows current "Today" page title, task list, and discrete progress ring.
+- Tap to complete tasks directly from the widget without launching the app.
+- Dynamic responsive layout (SizeMode.Responsive) that degrades gracefully by showing fewer tasks on smaller tiles rather than clipping text.
+- Fallback UI: If a live data fetch fails, the widget automatically re-renders its last-known-good state (persisted via DataStore) rather than showing a blank or error tile.
+- Centralized widget update architecture: `DaybookRepositoryImpl` triggers a debounced (400ms) widget refresh automatically on every write.
+
+### Changed
+- Refactored `DatabaseModule` CoroutineScope to use a dedicated `@ApplicationScope` qualifier for safer injection into the widget coordinator.
+
 ## [v0.3.0] - 2026-09-22
 ### Added
 - Home screen: bucket pills (outlined/filled per active state), horizontal page pager,

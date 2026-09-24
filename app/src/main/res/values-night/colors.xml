@@ -1,0 +1,11 @@
+<resources>
+    <!-- Dark-mode ring colors: warm dark paper, softer accents -->
+    <color name="ring_segment_fill">#C4A96A</color>
+    <color name="ring_track">#4A3F2F</color>
+    <color name="ring_complete">#6ABF8A</color>
+    <color name="ring_background">#2A2218</color>
+    <!-- Widget UI chrome -->
+    <color name="widget_background">#2A2218</color>
+    <color name="widget_ink">#DDD5C8</color>
+    <color name="widget_ink_muted">#7A7168</color>
+</resources>

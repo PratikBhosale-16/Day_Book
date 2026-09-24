@@ -43,6 +43,7 @@ abstract class DatabaseModule {
          */
         @Provides
         @Singleton
+        @ApplicationScope
         fun provideApplicationScope(): CoroutineScope =
             CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -50,7 +51,7 @@ abstract class DatabaseModule {
         @Singleton
         fun provideDatabase(
             @ApplicationContext context: Context,
-            applicationScope: CoroutineScope,
+            @ApplicationScope applicationScope: CoroutineScope,
         ): DaybookDatabase {
             // Build the DB first, then wire the seeder via a lazy reference
             // so we can pass the DAO accessor without a circular dependency.

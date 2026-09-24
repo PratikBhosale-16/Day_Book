@@ -10,6 +10,10 @@ These rules exist because a confidently wrong answer costs more time than an adm
 4. **Never reference a file, class, or function you have not opened.** Read it first. Do not assume a file's contents from its name.
 5. **Do not invent project structure.** If you need to know where something lives, list the directory. Do not assume.
 
+## A resumed process is not a cold start
+
+`adb shell am start` on an app whose process is already alive typically resumes the existing activity rather than triggering a fresh `onCreate` — meaning a ViewModel's in-memory state survives untouched, including state left over from earlier manual testing. A "verification" screenshot taken this way can show stale interaction state that looks exactly like a bug. Before taking any screenshot meant to prove a specific state (especially an initial/default state), force-stop the app first (`adb shell am force-stop <package>`) or reinstall, so the screenshot reflects an actual cold start rather than whatever was left in memory from earlier poking around.
+
 ## A build passing is not the same as a test running
 
 A test task reporting "BUILD SUCCESSFUL" proves nothing on its own — a misconfigured test runner, an empty test source set, or a test class Gradle fails to discover all produce the exact same green result with zero tests actually executed. This has already happened once on this project (`connectedDebugAndroidTest` reported success with the instrumentation runner not properly wired up).

@@ -13,6 +13,7 @@ import com.pratikbhosale.daybook.data.model.Task
 import com.pratikbhosale.daybook.domain.model.RolloverMode
 import com.pratikbhosale.daybook.domain.model.Settings
 import com.pratikbhosale.daybook.domain.repository.DaybookRepository
+import com.pratikbhosale.daybook.widget.WidgetUpdateCoordinator
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -24,6 +25,7 @@ class DaybookRepositoryImpl @Inject constructor(
     private val pageDao: PageDao,
     private val taskDao: TaskDao,
     private val dataStore: DataStore<Preferences>,
+    private val widgetUpdater: WidgetUpdateCoordinator,
 ) : DaybookRepository {
 
     // ── Buckets ──────────────────────────────────────────────────────────────
@@ -35,13 +37,17 @@ class DaybookRepositoryImpl @Inject constructor(
         bucketDao.getById(id)
 
     override suspend fun addBucket(bucket: Bucket): Long =
-        bucketDao.insert(bucket)
+        bucketDao.insert(bucket).also { widgetUpdater.scheduleUpdate() }
 
-    override suspend fun updateBucket(bucket: Bucket) =
+    override suspend fun updateBucket(bucket: Bucket) {
         bucketDao.update(bucket)
+        widgetUpdater.scheduleUpdate()
+    }
 
-    override suspend fun deleteNonDefaultBucket(id: Long) =
+    override suspend fun deleteNonDefaultBucket(id: Long) {
         bucketDao.deleteNonDefault(id)
+        widgetUpdater.scheduleUpdate()
+    }
 
     // ── Pages ─────────────────────────────────────────────────────────────────
 
@@ -52,19 +58,27 @@ class DaybookRepositoryImpl @Inject constructor(
         pageDao.getById(id)
 
     override suspend fun addPage(page: Page): Long =
-        pageDao.insert(page)
+        pageDao.insert(page).also { widgetUpdater.scheduleUpdate() }
 
-    override suspend fun updatePage(page: Page) =
+    override suspend fun updatePage(page: Page) {
         pageDao.update(page)
+        widgetUpdater.scheduleUpdate()
+    }
 
-    override suspend fun deletePage(id: Long) =
+    override suspend fun deletePage(id: Long) {
         pageDao.deleteById(id)
+        widgetUpdater.scheduleUpdate()
+    }
 
-    override suspend fun sealPage(id: Long, sealedAt: Long) =
+    override suspend fun sealPage(id: Long, sealedAt: Long) {
         pageDao.seal(id, sealedAt)
+        widgetUpdater.scheduleUpdate()
+    }
 
-    override suspend fun archivePage(id: Long, archivedAt: Long) =
+    override suspend fun archivePage(id: Long, archivedAt: Long) {
         pageDao.archive(id, archivedAt)
+        widgetUpdater.scheduleUpdate()
+    }
 
     override suspend fun getArchivedPages(limit: Int, offset: Int): List<Page> =
         pageDao.getArchivedPage(limit, offset)
@@ -81,16 +95,22 @@ class DaybookRepositoryImpl @Inject constructor(
         taskDao.getById(id)
 
     override suspend fun addTask(task: Task): Long =
-        taskDao.insert(task)
+        taskDao.insert(task).also { widgetUpdater.scheduleUpdate() }
 
-    override suspend fun updateTask(task: Task) =
+    override suspend fun updateTask(task: Task) {
         taskDao.update(task)
+        widgetUpdater.scheduleUpdate()
+    }
 
-    override suspend fun deleteTask(id: Long) =
+    override suspend fun deleteTask(id: Long) {
         taskDao.deleteById(id)
+        widgetUpdater.scheduleUpdate()
+    }
 
-    override suspend fun setTaskDone(id: Long, isDone: Boolean, doneAt: Long?) =
+    override suspend fun setTaskDone(id: Long, isDone: Boolean, doneAt: Long?) {
         taskDao.setDone(id, isDone, doneAt)
+        widgetUpdater.scheduleUpdate()
+    }
 
     override suspend fun clearTaskReminder(id: Long) =
         taskDao.clearReminder(id)

@@ -18,6 +18,24 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <receiver
+            android:name=".widget.DaybookWidgetReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/daybook_widget_info" />
+        </receiver>
+        <receiver
+            android:name=".PinWidgetReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.pratikbhosale.daybook.PIN_WIDGET" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>
