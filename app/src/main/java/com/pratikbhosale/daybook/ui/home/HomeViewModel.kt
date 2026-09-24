@@ -127,4 +127,25 @@ class HomeViewModel @Inject constructor(
             )
         }
     }
+
+    fun createPage() {
+        val currentState = uiState.value
+        if (currentState !is HomeUiState.Ready) return
+
+        val bucketId = currentState.buckets[currentState.activeBucketIndex].id
+        val maxOrder = currentState.pages.maxOfOrNull { it.page.sortOrder } ?: -1
+
+        viewModelScope.launch {
+            repository.addPage(
+                Page(
+                    bucketId = bucketId,
+                    title = "", // untitled by default
+                    sortOrder = maxOrder + 1,
+                    createdAt = System.currentTimeMillis()
+                )
+            )
+            // Immediately focus the new page (assumes it will be appended to the end)
+            activePageIndex.value = currentState.pages.size
+        }
+    }
 }

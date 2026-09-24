@@ -30,6 +30,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Archive
 import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -88,6 +89,7 @@ fun HomeScreen(
     onPageSelected: (Int) -> Unit,
     onTaskToggle: (Task) -> Unit,
     onAddTask: (pageId: Long, text: String) -> Unit,
+    onCreatePage: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Surface(
@@ -107,6 +109,7 @@ fun HomeScreen(
                 onPageSelected = onPageSelected,
                 onTaskToggle = onTaskToggle,
                 onAddTask = onAddTask,
+                onCreatePage = onCreatePage,
             )
         }
     }
@@ -119,6 +122,7 @@ private fun ReadyContent(
     onPageSelected: (Int) -> Unit,
     onTaskToggle: (Task) -> Unit,
     onAddTask: (pageId: Long, text: String) -> Unit,
+    onCreatePage: () -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         // ── Bucket pills ─────────────────────────────────────────────────────
@@ -160,7 +164,10 @@ private fun ReadyContent(
             pageSpacing = 12.dp,
         ) { pageIndex ->
             if (state.pages.isEmpty()) {
-                EmptyPageCard(modifier = Modifier.fillMaxSize())
+                EmptyPageCard(
+                    onClick = onCreatePage,
+                    modifier = Modifier.fillMaxSize(),
+                )
             } else {
                 val pageUiModel = state.pages[pageIndex]
                 val activeBucket = state.buckets[state.activeBucketIndex]
@@ -178,6 +185,7 @@ private fun ReadyContent(
         BottomChrome(
             pageCount = state.pages.size,
             currentPage = pagerState.currentPage,
+            onCreatePage = onCreatePage,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 12.dp),
@@ -322,8 +330,14 @@ private fun PageCard(
 }
 
 @Composable
-private fun EmptyPageCard(modifier: Modifier = Modifier) {
-    Box(modifier = modifier, contentAlignment = Alignment.Center) {
+private fun EmptyPageCard(onClick: () -> Unit, modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier.clickable(
+            onClick = onClick,
+            onClickLabel = "Create new page"
+        ),
+        contentAlignment = Alignment.Center,
+    ) {
         Text("No pages yet.", color = InkMuted)
     }
 }
@@ -491,6 +505,7 @@ private fun WriteTaskRow(
 private fun BottomChrome(
     pageCount: Int,
     currentPage: Int,
+    onCreatePage: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Row(
@@ -505,22 +520,36 @@ private fun BottomChrome(
             Icon(Icons.Outlined.Archive, contentDescription = null, tint = InkMuted)
         }
 
-        // Page dots
-        if (pageCount > 0) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                repeat(pageCount) { index ->
-                    val isActive = index == currentPage
-                    Box(
-                        modifier = Modifier
-                            .size(if (isActive) 7.dp else 5.dp)
-                            .clip(CircleShape)
-                            .background(if (isActive) Ink else InkMuted.copy(alpha = 0.4f))
-                            .semantics {
-                                contentDescription = "Page ${index + 1} of $pageCount"
-                            },
+        // Page dots and Create
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            repeat(pageCount) { index ->
+                val isActive = index == currentPage
+                Box(
+                    modifier = Modifier
+                        .size(if (isActive) 7.dp else 5.dp)
+                        .clip(CircleShape)
+                        .background(if (isActive) Ink else InkMuted.copy(alpha = 0.4f))
+                        .semantics {
+                            contentDescription = "Page ${index + 1} of $pageCount"
+                        },
+                )
+            }
+            if (pageCount > 0) {
+                Spacer(Modifier.width(2.dp))
+                IconButton(
+                    onClick = onCreatePage,
+                    modifier = Modifier
+                        .size(24.dp)
+                        .semantics { contentDescription = "Create page" },
+                ) {
+                    Icon(
+                        Icons.Outlined.Add,
+                        contentDescription = null,
+                        tint = InkMuted,
+                        modifier = Modifier.size(20.dp)
                     )
                 }
             }
@@ -572,6 +601,7 @@ private fun HomeScreenPreviewLight() {
             onPageSelected = {},
             onTaskToggle = {},
             onAddTask = { _, _ -> },
+            onCreatePage = {},
         )
     }
 }
@@ -586,6 +616,7 @@ private fun HomeScreenPreviewDark() {
             onPageSelected = {},
             onTaskToggle = {},
             onAddTask = { _, _ -> },
+            onCreatePage = {},
         )
     }
 }
@@ -601,6 +632,7 @@ private fun HomeScreenPreviewLargeFont() {
             onPageSelected = {},
             onTaskToggle = {},
             onAddTask = { _, _ -> },
+            onCreatePage = {},
         )
     }
 }

@@ -30,6 +30,7 @@ class MainActivity : ComponentActivity() {
                     onPageSelected = viewModel::selectPage,
                     onTaskToggle = viewModel::toggleTask,
                     onAddTask = viewModel::addTask,
+                    onCreatePage = viewModel::createPage,
                     modifier = Modifier
                         .fillMaxSize()
                         .safeDrawingPadding(),

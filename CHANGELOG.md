@@ -2,6 +2,11 @@
 
 All notable changes to Daybook are recorded here. Format follows Keep a Changelog; versions follow semver.
 
+## [v0.5.0] - 2026-09-24
+### Added
+- Minimal page creation: Tap "No pages yet." on an empty bucket, or tap the `+` affordance near the page dots to create a new untitled page.
+- Immediately focuses on the newly created page to support the write-first onboarding flow.
+
 ## [v0.4.0] - 2026-09-24
 ### Added
 - Home screen widget (Jetpack Glance): Shows current "Today" page title, task list, and discrete progress ring.
